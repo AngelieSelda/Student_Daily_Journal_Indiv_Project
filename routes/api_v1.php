@@ -1,5 +1,6 @@
 <?php
 
+namespace App\Http\Resources\V1;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\JournalController;
 use Illuminate\Support\Facades\Route;
@@ -21,3 +22,6 @@ Route::middleware('auth:api')->group(function () {
     // Journal routes na protektado na rin ng authentication
     Route::apiResource('journals', JournalController::class)->only(['index']);
 });
+
+// Sa loob ng iyong Route::middleware('auth:api')->group(function () { ... })
+Route::apiResource('journals', JournalController::class)->only(['index', 'show']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Journal;
+use App\Http\Resources\V1\JournalResource;
 
 class JournalController extends Controller
 {
@@ -13,7 +14,7 @@ class JournalController extends Controller
      */
     public function index()
     {
-        return Journal::all();
+        return JournalResource::collection(Journal::paginate());
     }
 
     /**
@@ -27,9 +28,9 @@ class JournalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Journal $journal)
     {
-        //
+        return new JournalResource($journal);
     }
 
     /**
