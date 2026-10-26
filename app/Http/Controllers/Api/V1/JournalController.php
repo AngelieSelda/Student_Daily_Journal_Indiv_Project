@@ -2,50 +2,32 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Journal;
 use App\Http\Resources\V1\JournalResource;
+use App\Models\Journal;
 
-class JournalController extends Controller
+class JournalController extends APIController
 {
     /**
-     * Display a listing of the resource.
+     * GET /api/v1/journals
      */
     public function index()
     {
+        if ($this->include('author')) {
+            return JournalResource::collection(Journal::with('author')->paginate());
+        }
+
         return JournalResource::collection(Journal::paginate());
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
+     * GET /api/v1/journals/{journal}
      */
     public function show(Journal $journal)
     {
+        if ($this->include('author')) {
+            return new JournalResource($journal->load('author'));
+        }
+
         return new JournalResource($journal);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

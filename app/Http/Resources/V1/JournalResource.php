@@ -39,6 +39,9 @@ class JournalResource extends JsonResource
                     ],
                 ],
             ],
+            'includes' => [
+                'author' => new UserResource($this->whenLoaded('author')),
+            ],
             'links' => [
                 'self' => route('journals.show', ['journal' => $this->id]),
             ],

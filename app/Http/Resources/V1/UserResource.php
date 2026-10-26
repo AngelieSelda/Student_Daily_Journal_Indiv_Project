@@ -27,6 +27,10 @@ class UserResource extends JsonResource
                     'updatedAt' => $this->updated_at,
                 ]),
             ],
+            'includes' => [
+                // Lalabas lamang kapag hiniling gamit ang ?include=journals
+                'journals' => JournalResource::collection($this->whenLoaded('journals')),
+            ],
             'links' => [
                 'self' => route('authors.show', ['author' => $this->id]),
             ],

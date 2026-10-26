@@ -2,50 +2,27 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\V1\APIController;
 use App\Http\Resources\V1\UserResource;
-use Illuminate\Http\Request;
 use App\Models\User;
 
-class AuthorsController extends Controller
+class AuthorsController extends APIController // <-- Palitan din dito kung 'extends Controller' pa
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
+        if ($this->include('journals')) {
+            return UserResource::collection(User::has('journals')->with('journals')->paginate());
+        }
+
         return UserResource::collection(User::has('journals')->paginate());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(User $author)
     {
+        if ($this->include('journals')) {
+            return new UserResource($author->load('journals'));
+        }
+
         return new UserResource($author);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }
