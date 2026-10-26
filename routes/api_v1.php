@@ -4,6 +4,7 @@ namespace App\Http\Resources\V1;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\JournalController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AuthorsController;
 
 // Public routes: Walang token na kailangan para makapag-register o mag-login
 Route::prefix('auth')->group(function () {
@@ -25,3 +26,5 @@ Route::middleware('auth:api')->group(function () {
 
 // Sa loob ng iyong Route::middleware('auth:api')->group(function () { ... })
 Route::apiResource('journals', JournalController::class)->only(['index', 'show']);
+
+Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);

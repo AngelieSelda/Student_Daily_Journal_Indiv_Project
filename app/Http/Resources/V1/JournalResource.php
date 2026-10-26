@@ -14,12 +14,16 @@ class JournalResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-       return [
+        return [
             'type' => 'journal',
             'id' => (string) $this->id,
             'attributes' => [
                 'title' => $this->title,
-                'content' => $this->content,
+                // Itago ang content kapag nasa list/index endpoint ito
+                'content' => $this->when(
+                    !$request->routeIs(['journals.index', 'users.journals.index']),
+                    $this->content
+                ),
                 'status' => $this->status,
                 'createdAt' => $this->created_at,
                 'updatedAt' => $this->updated_at,
@@ -29,6 +33,9 @@ class JournalResource extends JsonResource
                     'data' => [
                         'type' => 'user',
                         'id' => (string) $this->user_id,
+                    ],
+                    'links' => [
+                        'self' => route('authors.show', ['author' => $this->user_id]),
                     ],
                 ],
             ],
