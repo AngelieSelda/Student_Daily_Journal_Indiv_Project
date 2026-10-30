@@ -4,6 +4,14 @@ namespace App\Http\Filters\V1;
 
 class JournalFilter extends QueryFilter
 {
+    // Mga column na pwedeng i-sort ng client para sa journals
+    protected array $sortable = [
+        'title',
+        'status',
+        'createdAt' => 'created_at',
+        'updatedAt' => 'updated_at',
+    ];
+    
     public function createdAt($value)
     {
         $dates = explode(',', $value);

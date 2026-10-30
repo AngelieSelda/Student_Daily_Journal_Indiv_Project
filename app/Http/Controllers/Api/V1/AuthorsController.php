@@ -5,16 +5,15 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V1\APIController;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
+use App\Http\Filters\V1\AuthorFilter;
 
-class AuthorsController extends APIController // <-- Palitan din dito kung 'extends Controller' pa
+class AuthorsController extends APIController
 {
-    public function index()
+    public function index(AuthorFilter $filters)
     {
-        if ($this->include('journals')) {
-            return UserResource::collection(User::has('journals')->with('journals')->paginate());
-        }
-
-        return UserResource::collection(User::has('journals')->paginate());
+        return UserResource::collection(
+            User::filter($filters)->paginate()
+        );
     }
 
     public function show(User $author)

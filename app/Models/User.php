@@ -11,6 +11,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Http\Filters\V1\QueryFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -46,6 +48,11 @@ class User extends Authenticatable implements JWTSubject
     public function journals(): HasMany
     {
         return $this->hasMany(Journal::class, 'user_id');
+    }
+
+    public function scopeFilter(Builder $builder, QueryFilter $filters): Builder
+    {
+         return $filters->apply($builder);
     }
 
 }
