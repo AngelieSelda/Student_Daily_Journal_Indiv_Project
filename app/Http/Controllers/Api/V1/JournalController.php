@@ -37,4 +37,11 @@ class JournalController extends APIController
 
         return new JournalResource($journal);
     }
+
+    public function destroy(Journal $journal)
+    {
+        $journal->delete();
+
+        return $this->ok('Journal successfully deleted');
+    }
 }

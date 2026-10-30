@@ -31,3 +31,5 @@ Route::apiResource('journals', JournalController::class)->only(['index', 'show',
 Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 
 Route::apiResource('users.journals', UserJournalsController::class)->only(['index']);
+
+Route::apiResource('journals', JournalController::class)->only(['index', 'show', 'store', 'destroy']);
