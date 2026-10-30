@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Filters\V1\JournalFilter;
 use App\Http\Resources\V1\JournalResource;
 use App\Models\Journal;
 
@@ -10,13 +11,11 @@ class JournalController extends APIController
     /**
      * GET /api/v1/journals
      */
-    public function index()
+    public function index(JournalFilter $filters)
     {
-        if ($this->include('author')) {
-            return JournalResource::collection(Journal::with('author')->paginate());
-        }
-
-        return JournalResource::collection(Journal::paginate());
+        return JournalResource::collection(
+            Journal::filter($filters)->paginate()
+        );
     }
 
     /**
