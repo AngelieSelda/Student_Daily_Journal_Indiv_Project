@@ -26,7 +26,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // Sa loob ng iyong Route::middleware('auth:api')->group(function () { ... })
-Route::apiResource('journals', JournalController::class)->only(['index', 'show']);
+Route::apiResource('journals', JournalController::class)->only(['index', 'show', 'store']);
 
 Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 
