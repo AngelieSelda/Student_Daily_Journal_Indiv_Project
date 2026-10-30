@@ -6,6 +6,7 @@ use App\Http\Filters\V1\JournalFilter;
 use App\Http\Resources\V1\JournalResource;
 use App\Models\Journal;
 use App\Http\Requests\Api\V1\StoreJournalRequest;
+use App\Http\Requests\Api\V1\ReplaceJournalRequest;
 
 class JournalController extends APIController
 {
@@ -43,5 +44,12 @@ class JournalController extends APIController
         $journal->delete();
 
         return $this->ok('Journal successfully deleted');
+    }
+
+    public function replace(ReplaceJournalRequest $request, Journal $journal)
+    {
+        $journal->update($request->mappedAttributes());
+
+        return new JournalResource($journal);
     }
 }
