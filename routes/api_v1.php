@@ -36,3 +36,5 @@ Route::apiResource('journals', JournalController::class)->only(['index', 'show',
 
 Route::apiResource('journals', JournalController::class)->only(['index', 'show', 'store', 'destroy']);
 Route::put('journals/{journal}', [JournalController::class, 'replace']);
+
+Route::patch('journals/{journal}', [JournalController::class, 'update']);

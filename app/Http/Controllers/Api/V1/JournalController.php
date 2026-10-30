@@ -7,6 +7,7 @@ use App\Http\Resources\V1\JournalResource;
 use App\Models\Journal;
 use App\Http\Requests\Api\V1\StoreJournalRequest;
 use App\Http\Requests\Api\V1\ReplaceJournalRequest;
+use App\Http\Requests\Api\V1\UpdateJournalRequest;
 
 class JournalController extends APIController
 {
@@ -47,6 +48,13 @@ class JournalController extends APIController
     }
 
     public function replace(ReplaceJournalRequest $request, Journal $journal)
+    {
+        $journal->update($request->mappedAttributes());
+
+        return new JournalResource($journal);
+    }
+
+    public function update(UpdateJournalRequest $request, Journal $journal)
     {
         $journal->update($request->mappedAttributes());
 
