@@ -42,4 +42,9 @@ trait ApiResponses
             'status' => $statusCode,
         ], $statusCode);
     }
+
+    protected function notAuthorized(string $message): JsonResponse
+    {
+        return $this->error($message, 403);
+    }
 }

@@ -56,6 +56,10 @@ class JournalController extends APIController
 
     public function update(UpdateJournalRequest $request, Journal $journal)
     {
+        if (!$this->isAble('update', $journal)) {
+        return $this->notAuthorized('You are not authorized to update that resource.');
+        }
+
         $journal->update($request->mappedAttributes());
 
         return new JournalResource($journal);
