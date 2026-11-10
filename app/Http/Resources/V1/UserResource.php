@@ -7,11 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -20,7 +15,6 @@ class UserResource extends JsonResource
             'attributes' => [
                 'name' => $this->name,
                 'email' => $this->email,
-                // Omit ang ibang fields maliban kung nasa authors route ka na
                 $this->mergeWhen($request->routeIs(['authors.*', 'users.*']), [
                     'emailVerifiedAt' => $this->email_verified_at,
                     'createdAt' => $this->created_at,
@@ -28,7 +22,6 @@ class UserResource extends JsonResource
                 ]),
             ],
             'includes' => [
-                // Lalabas lamang kapag hiniling gamit ang ?include=journals
                 'journals' => JournalResource::collection($this->whenLoaded('journals')),
             ],
             'links' => [
