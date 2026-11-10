@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\JournalController;
 use App\Http\Controllers\Api\V1\AuthorsController;
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\UserJournalsController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,11 @@ Route::middleware('auth:api')->group(function () {
 
     // Author routes (read-only)
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
+
+    // Users (management): list, create, show, update, replace, delete
+    Route::apiResource('users', UserController::class)->except(['update']);
+    Route::put('users/{user}', [UserController::class, 'replace']);
+    Route::patch('users/{user}', [UserController::class, 'update']);
 
     // Journals of one user (nested routes with scope bindings)
     Route::apiResource('users.journals', UserJournalsController::class)

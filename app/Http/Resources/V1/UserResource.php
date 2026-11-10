@@ -15,6 +15,7 @@ class UserResource extends JsonResource
             'attributes' => [
                 'name' => $this->name,
                 'email' => $this->email,
+                'isManager' => (bool) $this->is_manager,
                 $this->mergeWhen($request->routeIs(['authors.*', 'users.*']), [
                     'emailVerifiedAt' => $this->email_verified_at,
                     'createdAt' => $this->created_at,
@@ -25,7 +26,7 @@ class UserResource extends JsonResource
                 'journals' => JournalResource::collection($this->whenLoaded('journals')),
             ],
             'links' => [
-                'self' => route('authors.show', ['author' => $this->id]),
+                'self' => route('users.show', ['user' => $this->id]),
             ],
         ];
     }
