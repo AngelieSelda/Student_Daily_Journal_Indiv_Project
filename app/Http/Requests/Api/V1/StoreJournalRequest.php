@@ -6,7 +6,7 @@ class StoreJournalRequest extends BaseJournalRequest
 {
     public function authorize(): bool
     {
-        return true; // Ang mismong authorization logic ay hahawakan ng Policy sa mga susunod na step
+        return true;
     }
 
     public function rules(): array
@@ -20,7 +20,7 @@ class StoreJournalRequest extends BaseJournalRequest
             'data.attributes' => 'required|array',
             'data.attributes.title' => 'required|string',
             'data.attributes.content' => 'required|string',
-            'data.attributes.status' => 'required|string|in:approved,pending,rejected',
+            'data.attributes.status' => 'required|string|in:submitted,reviewed,approved',
             $authorIdAttr => 'required|integer|exists:users,id',
         ];
     }

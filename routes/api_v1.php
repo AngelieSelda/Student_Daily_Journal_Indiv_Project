@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Http\Resources\V1;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\JournalController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthorsController;
 use App\Http\Controllers\Api\V1\UserJournalsController;
+use Illuminate\Support\Facades\Route;
 
-// Public routes: Walang token na kailangan para makapag-register o mag-login
+// Public routes: No token needed to register or login
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 });
 
-// Protected routes: Kailangan ng valid JWT token
+// Protected routes: Require a valid JWT token
 Route::middleware('auth:api')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
@@ -21,20 +20,13 @@ Route::middleware('auth:api')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
-    // Journal routes na protektado na rin ng authentication
-    Route::apiResource('journals', JournalController::class)->only(['index']);
+    // Journal CRUD routes
+    Route::apiResource('journals', JournalController::class);
+    Route::put('journals/{journal}', [JournalController::class, 'replace']);
+
+    // Author routes (read-only)
+    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
+
+    // Nested: journals by user
+    Route::apiResource('users.journals', UserJournalsController::class)->only(['index']);
 });
-
-// Sa loob ng iyong Route::middleware('auth:api')->group(function () { ... })
-Route::apiResource('journals', JournalController::class)->only(['index', 'show', 'store']);
-
-Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
-
-Route::apiResource('users.journals', UserJournalsController::class)->only(['index']);
-
-Route::apiResource('journals', JournalController::class)->only(['index', 'show', 'store', 'destroy']);
-
-Route::apiResource('journals', JournalController::class)->only(['index', 'show', 'store', 'destroy']);
-Route::put('journals/{journal}', [JournalController::class, 'replace']);
-
-Route::patch('journals/{journal}', [JournalController::class, 'update']);

@@ -10,7 +10,7 @@ class ReplaceJournalRequest extends BaseJournalRequest
     }
 
     /**
-     * Ang PUT request ay nagre-replace ng buong resource, kaya walang pwedeng makaligtaan na field.
+     * PUT request replaces the entire resource — all fields are required.
      */
     public function rules(): array
     {
@@ -19,7 +19,7 @@ class ReplaceJournalRequest extends BaseJournalRequest
             'data.attributes' => 'required|array',
             'data.attributes.title' => 'required|string',
             'data.attributes.content' => 'required|string',
-            'data.attributes.status' => 'required|string|in:approved,pending,rejected',
+            'data.attributes.status' => 'required|string|in:submitted,reviewed,approved',
             'data.relationships' => 'required|array',
             'data.relationships.author' => 'required|array',
             'data.relationships.author.data' => 'required|array',

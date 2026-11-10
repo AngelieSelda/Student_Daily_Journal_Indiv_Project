@@ -4,65 +4,64 @@ namespace App\Policies\V1;
 
 use App\Models\Journal;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Permissions\V1\Abilities;
 
+/**
+ * Authorization rules for journals. Each method returns true (allowed) or false (denied).
+ * The rules read the abilities stored in the user's JWT.
+ */
 class JournalPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * May this user create a journal? Needs the broad or the "own" create ability.
      */
-
-   
-    public function viewAny(User $user): bool
+    public function store(User $user): bool
     {
-        return false;
+        return $user->tokenCan(Abilities::CreateJournal)
+            || $user->tokenCan(Abilities::CreateOwnJournal);
     }
 
     /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Journal $journal): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
+     * May this user update this journal (PATCH)?
      */
     public function update(User $user, Journal $journal): bool
     {
-        return $user->id === $journal->user_id;
+        // Broad ability: any journal (admin)
+        if ($user->tokenCan(Abilities::UpdateJournal)) {
+            return true;
+        }
+
+        // "Own" ability: only a journal the user owns (student)
+        if ($user->tokenCan(Abilities::UpdateOwnJournal)) {
+            return $user->id === $journal->user_id;
+        }
+
+        return false;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * May this user replace this journal (PUT)? Managers only.
+     */
+    public function replace(User $user, Journal $journal): bool
+    {
+        return $user->tokenCan(Abilities::ReplaceJournal);
+    }
+
+    /**
+     * May this user delete this journal?
      */
     public function delete(User $user, Journal $journal): bool
     {
-        return false;
-    }
+        // Broad ability: any journal (admin)
+        if ($user->tokenCan(Abilities::DeleteJournal)) {
+            return true;
+        }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Journal $journal): bool
-    {
-        return false;
-    }
+        // "Own" ability: only a journal the user owns (student)
+        if ($user->tokenCan(Abilities::DeleteOwnJournal)) {
+            return $user->id === $journal->user_id;
+        }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Journal $journal): bool
-    {
         return false;
     }
 }

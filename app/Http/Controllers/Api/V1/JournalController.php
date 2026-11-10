@@ -33,35 +33,60 @@ class JournalController extends APIController
         return new JournalResource($journal);
     }
 
+    /**
+     * POST /api/v1/journals
+     * Creates a journal, but only if the policy allows this user to do so.
+     */
     public function store(StoreJournalRequest $request)
     {
-        $journal = Journal::create($request->mappedAttributes());
-
-        return new JournalResource($journal);
-    }
-
-    public function destroy(Journal $journal)
-    {
-        $journal->delete();
-
-        return $this->ok('Journal successfully deleted');
-    }
-
-    public function replace(ReplaceJournalRequest $request, Journal $journal)
-    {
-        $journal->update($request->mappedAttributes());
-
-        return new JournalResource($journal);
-    }
-
-    public function update(UpdateJournalRequest $request, Journal $journal)
-    {
-        if (!$this->isAble('update', $journal)) {
-        return $this->notAuthorized('You are not authorized to update that resource.');
+        // Ask JournalPolicy::store (checks the ability stored in the token)
+        if ($this->isAble('store', Journal::class)) {
+            return new JournalResource(
+                Journal::create($request->mappedAttributes())
+            );
         }
 
-        $journal->update($request->mappedAttributes());
+        return $this->notAuthorized('You are not authorized to create that resource.');
+    }
 
-        return new JournalResource($journal);
+    /**
+     * PATCH /api/v1/journals/{journal}
+     */
+    public function update(UpdateJournalRequest $request, Journal $journal)
+    {
+        if ($this->isAble('update', $journal)) {
+            $journal->update($request->mappedAttributes());
+            return new JournalResource($journal);
+        }
+
+        return $this->notAuthorized('You are not authorized to update that resource.');
+    }
+
+    /**
+     * PUT /api/v1/journals/{journal}
+     * Replaces the whole journal.
+     */
+    public function replace(ReplaceJournalRequest $request, Journal $journal)
+    {
+        if ($this->isAble('replace', $journal)) {
+            $journal->update($request->mappedAttributes());
+            return new JournalResource($journal);
+        }
+
+        return $this->notAuthorized('You are not authorized to replace that resource.');
+    }
+
+    /**
+     * DELETE /api/v1/journals/{journal}
+     * Deletes the journal, but only if the policy allows it.
+     */
+    public function destroy(Journal $journal)
+    {
+        if ($this->isAble('delete', $journal)) {
+            $journal->delete();
+            return $this->ok('Journal successfully deleted');
+        }
+
+        return $this->notAuthorized('You are not authorized to delete that resource.');
     }
 }
