@@ -27,6 +27,17 @@ Route::middleware('auth:api')->group(function () {
     // Author routes (read-only)
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 
-    // Nested: journals by user
-    Route::apiResource('users.journals', UserJournalsController::class)->only(['index']);
+    // Journals of one user (nested routes with scope bindings)
+    Route::apiResource('users.journals', UserJournalsController::class)
+        ->only(['index', 'store'])
+        ->scoped();
+
+    Route::put('users/{user}/journals/{journal}', [UserJournalsController::class, 'replace'])
+        ->scopeBindings();
+
+    Route::patch('users/{user}/journals/{journal}', [UserJournalsController::class, 'update'])
+        ->scopeBindings();
+
+    Route::delete('users/{user}/journals/{journal}', [UserJournalsController::class, 'destroy'])
+        ->scopeBindings();
 });

@@ -21,7 +21,11 @@ class StoreJournalRequest extends BaseJournalRequest
      */
     public function rules(): array
     {
-        $userIdAttr = 'data.relationships.author.data.id';
+        // Kung galing sa journals.store, ang author id ay nasa JSON body;
+        // kung galing sa users.journals.store, ang author id ay galing sa URL (via prepareForValidation)
+        $userIdAttr = $this->routeIs('journals.store')
+            ? 'data.relationships.author.data.id'
+            : 'user';
 
         $rules = [
             'data' => 'required|array',
@@ -39,5 +43,17 @@ class StoreJournalRequest extends BaseJournalRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * Kapag galing sa nested route (users.journals.store), kunin ang user_id mula sa URL.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->routeIs('users.journals.store')) {
+            $this->merge([
+                'user' => $this->route('user')->getKey(),
+            ]);
+        }
     }
 }
