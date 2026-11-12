@@ -13,7 +13,6 @@ class StoreJournalRequest extends BaseJournalRequest
 
     public function rules(): array
     {
-        // Support both 'author' and 'user' relationships, as well as nested route 'user'
         $userIdAttr = $this->routeIs('journals.store')
             ? ($this->has('data.relationships.user.data.id')
                 ? 'data.relationships.user.data.id'
@@ -22,40 +21,57 @@ class StoreJournalRequest extends BaseJournalRequest
 
         $userRule = 'required|integer|exists:users,id';
 
+        $user = $this->user();
+
         $rules = [
             'data' => 'required|array',
             'data.attributes' => 'required|array',
             'data.attributes.title' => 'required|string|max:255',
             'data.attributes.content' => 'required|string',
             'data.attributes.status' => 'sometimes|string|in:submitted,reviewed,approved',
-            $userIdAttr => $userRule,
+            // Null-safe para sa Scribe generation kahit walang active user
+            $userIdAttr => $user ? $userRule : 'required|integer',
         ];
 
-        // Default: Principle of Least Privilege
-        $user = $this->user();
-
-        // Regular student (CreateOwnJournal): author MUST be themselves (size check)
-        if ($user && $user->tokenCan(Abilities::CreateOwnJournal)) {
+        if ($user?->tokenCan(Abilities::CreateOwnJournal)) {
             $rules[$userIdAttr] = 'required|integer|size:' . $user->id;
         }
 
-        // Manager with broad ability (CreateJournal): can assign to any valid user
-        if ($user && $user->tokenCan(Abilities::CreateJournal)) {
+        if ($user?->tokenCan(Abilities::CreateJournal)) {
             $rules[$userIdAttr] = $userRule;
         }
 
         return $rules;
     }
 
-    /**
-     * Kapag galing sa nested route (users.journals.store), kunin ang user_id mula sa URL.
-     */
-    protected function prepareForValidation(): void
+    public function prepareForValidation(): void
     {
         if ($this->routeIs('users.journals.store')) {
             $this->merge([
-                'user' => $this->route('user')->getKey(),
+                'user' => $this->route('user')?->getKey(),
             ]);
         }
+    }
+
+    public function bodyParameters(): array
+    {
+        return [
+            'data.attributes.title' => [
+                'description' => 'The title of the student journal entry.',
+                'example' => 'My Learning Journey in API Development',
+            ],
+            'data.attributes.content' => [
+                'description' => 'The main body content of the student journal.',
+                'example' => 'Today we successfully implemented API documentation using Scribe.',
+            ],
+            'data.attributes.status' => [
+                'description' => 'The status of the journal (submitted, reviewed, or approved).',
+                'example' => 'submitted',
+            ],
+            'data.relationships.author.data.id' => [
+                'description' => 'The ID of the author/user this journal belongs to.',
+                'example' => 1,
+            ],
+        ];
     }
 }

@@ -8,13 +8,28 @@ use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
 
+/**
+ * @group User Management
+ *
+ * APIs for managing users and students (Managers only).
+ */
 class UserController extends APIController
 {
+    /**
+     * List users
+     *
+     * Returns a paginated list of all users.
+     */
     public function index()
     {
         return UserResource::collection(User::paginate());
     }
 
+    /**
+     * Create user
+     *
+     * Creates a new user record.
+     */
     public function store(StoreUserRequest $request)
     {
         if ($this->isAble('store', User::class)) {
@@ -26,6 +41,13 @@ class UserController extends APIController
         return $this->notAuthorized('You are not authorized to create that resource.');
     }
 
+    /**
+     * Get user details
+     *
+     * Returns a single user profile. Supports ?include=journals.
+     *
+     * @queryParam include string Include related journals. Example: journals
+     */
     public function show(User $user)
     {
         if ($this->include('journals')) {
@@ -35,6 +57,11 @@ class UserController extends APIController
         return new UserResource($user);
     }
 
+    /**
+     * Update user
+     *
+     * Updates specific fields of a user.
+     */
     public function update(UpdateUserRequest $request, User $user)
     {
         if ($this->isAble('update', $user)) {
@@ -46,6 +73,11 @@ class UserController extends APIController
         return $this->notAuthorized('You are not authorized to update that resource.');
     }
 
+    /**
+     * Replace user
+     *
+     * Completely replaces a user record.
+     */
     public function replace(ReplaceUserRequest $request, User $user)
     {
         if ($this->isAble('replace', $user)) {
@@ -57,6 +89,11 @@ class UserController extends APIController
         return $this->notAuthorized('You are not authorized to replace that resource.');
     }
 
+    /**
+     * Delete user
+     *
+     * Deletes a user record.
+     */
     public function destroy(User $user)
     {
         if ($this->isAble('delete', $user)) {
