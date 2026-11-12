@@ -16,22 +16,32 @@ class UpdateJournalRequest extends BaseJournalRequest
         $rules = [
             'data' => 'sometimes|array',
             'data.attributes' => 'sometimes|array',
-            'data.attributes.title' => 'sometimes|string',
+            'data.attributes.title' => 'sometimes|string|max:255',
             'data.attributes.content' => 'sometimes|string',
             'data.attributes.status' => 'sometimes|string|in:submitted,reviewed,approved',
-            'data.relationships' => 'sometimes|array',
-            'data.relationships.author' => 'sometimes|array',
-            'data.relationships.author.data' => 'sometimes|array',
-            'data.relationships.author.data.id' => 'sometimes|integer|exists:users,id',
+
+            // Principle of Least Privilege: Deny by default
+            // Regular users cannot modify or pass relationships (prohibited)
+            'data.relationships' => 'prohibited',
+            'data.relationships.author' => 'prohibited',
+            'data.relationships.author.data' => 'prohibited',
+            'data.relationships.author.data.id' => 'prohibited',
+            'data.relationships.user' => 'prohibited',
+            'data.relationships.user.data' => 'prohibited',
+            'data.relationships.user.data.id' => 'prohibited',
         ];
 
         $user = $this->user();
 
-        // I-check kung ang user ay may restriction na update-own-journal
-        if ($user && $user->tokenCan(Abilities::UpdateOwnJournal)) {
-            $rules['data.relationships.author'] = 'prohibited';
-            $rules['data.relationships.author.data'] = 'prohibited';
-            $rules['data.relationships.author.data.id'] = 'prohibited';
+        // Kung manager (may broad UpdateJournal ability), pinapayagang palitan ang author/user
+        if ($user && $user->tokenCan(Abilities::UpdateJournal)) {
+            $rules['data.relationships'] = 'sometimes|array';
+            $rules['data.relationships.author'] = 'sometimes|array';
+            $rules['data.relationships.author.data'] = 'sometimes|array';
+            $rules['data.relationships.author.data.id'] = 'sometimes|integer|exists:users,id';
+            $rules['data.relationships.user'] = 'sometimes|array';
+            $rules['data.relationships.user.data'] = 'sometimes|array';
+            $rules['data.relationships.user.data.id'] = 'sometimes|integer|exists:users,id';
         }
 
         return $rules;

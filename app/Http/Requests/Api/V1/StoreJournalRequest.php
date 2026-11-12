@@ -6,40 +6,42 @@ use App\Permissions\V1\Abilities;
 
 class StoreJournalRequest extends BaseJournalRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        // Kung galing sa journals.store, ang author id ay nasa JSON body;
-        // kung galing sa users.journals.store, ang author id ay galing sa URL (via prepareForValidation)
+        // Support both 'author' and 'user' relationships, as well as nested route 'user'
         $userIdAttr = $this->routeIs('journals.store')
-            ? 'data.relationships.author.data.id'
+            ? ($this->has('data.relationships.user.data.id')
+                ? 'data.relationships.user.data.id'
+                : 'data.relationships.author.data.id')
             : 'user';
+
+        $userRule = 'required|integer|exists:users,id';
 
         $rules = [
             'data' => 'required|array',
             'data.attributes' => 'required|array',
-            'data.attributes.title' => 'required|string',
+            'data.attributes.title' => 'required|string|max:255',
             'data.attributes.content' => 'required|string',
-            'data.attributes.status' => 'required|string|in:submitted,reviewed,approved',
-            $userIdAttr => 'required|integer|exists:users,id',
+            'data.attributes.status' => 'sometimes|string|in:submitted,reviewed,approved',
+            $userIdAttr => $userRule,
         ];
 
-        // Kung ang user ay may restriction na create-own-journal lamang, kailangang tumugma ang id sa sarili niya
+        // Default: Principle of Least Privilege
         $user = $this->user();
+
+        // Regular student (CreateOwnJournal): author MUST be themselves (size check)
         if ($user && $user->tokenCan(Abilities::CreateOwnJournal)) {
-            $rules[$userIdAttr] .= '|size:' . $user->id;
+            $rules[$userIdAttr] = 'required|integer|size:' . $user->id;
+        }
+
+        // Manager with broad ability (CreateJournal): can assign to any valid user
+        if ($user && $user->tokenCan(Abilities::CreateJournal)) {
+            $rules[$userIdAttr] = $userRule;
         }
 
         return $rules;

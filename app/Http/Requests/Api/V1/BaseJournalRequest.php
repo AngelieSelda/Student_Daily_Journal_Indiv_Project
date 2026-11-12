@@ -4,7 +4,6 @@ namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-
 class BaseJournalRequest extends FormRequest
 {
     /**
@@ -17,6 +16,7 @@ class BaseJournalRequest extends FormRequest
             'data.attributes.content' => 'content',
             'data.attributes.status' => 'status',
             'data.relationships.author.data.id' => 'user_id',
+            'data.relationships.user.data.id' => 'user_id',
             'user' => 'user_id',
         ], $otherAttributes);
 
@@ -37,7 +37,7 @@ class BaseJournalRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'data.attributes.status.in' => 'Ang status ay dapat na approved, pending, o rejected.',
+            'data.attributes.status.in' => 'Ang status ay dapat na submitted, reviewed, o approved.',
         ];
     }
 }
