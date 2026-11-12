@@ -13,7 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
-        // Runs after the other routes are registered
         then: function () {
             // Version 1 of the API: every URL starts with /api/v1
             Route::middleware('api')
@@ -21,12 +20,20 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/api_v1.php'));
         },
     )
-    ->withMiddleware(function (Middleware $middleware): void {
+    ->withMiddleware(function (Middleware $middleware) {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         // Always answer with JSON (never an HTML page) for URLs that start with api/
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+            fn (Request $request) => $request->is('api/*'),
         );
-    })->create();
+    })
+    ->booting(function () {
+        // Use our custom handler for every exception
+        app()->singleton(
+            \Illuminate\Contracts\Debug\ExceptionHandler::class,
+            \App\Exceptions\Handler::class
+        );
+    })
+    ->create();
